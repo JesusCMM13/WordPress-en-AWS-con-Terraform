@@ -1,0 +1,28 @@
+###############################################################
+# terraform.tfvars.example
+# Copia este fichero a terraform.tfvars y rellena los valores
+# NUNCA subas terraform.tfvars a Git (ya está en .gitignore)
+###############################################################
+
+# ─── Obligatorio ─────────────────────────────────────────────
+db_password = "CambiaEstaContraseña!2024"   # ← Cambia esto
+
+# ─── Opcionales (sobreescriben los defaults de variables.tf) ─
+# aws_region         = "eu-west-1"
+# project_name       = "wordpress"
+# instance_type      = "t3.small"
+# root_volume_size   = 20
+# ssh_public_key_path = "~/.ssh/id_rsa.pub"
+# ssh_allowed_cidr   = "1.2.3.4/32"  # ← Pon tu IP pública aquí
+
+# ─── Red (raramente necesitarás cambiar esto) ─────────────────
+# vpc_cidr            = "10.0.0.0/16"
+# public_subnet_cidr  = "10.0.1.0/24"
+
+# ─── Tags ────────────────────────────────────────────────────
+# common_tags = {
+#   Project     = "WordPress"
+#   Environment = "production"
+#   ManagedBy   = "Terraform"
+#   Owner       = "tu-nombre"
+# }

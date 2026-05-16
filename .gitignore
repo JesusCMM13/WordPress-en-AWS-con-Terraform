@@ -1,0 +1,21 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Secretos — NUNCA subir a Git
+terraform.tfvars
+*.auto.tfvars
+secrets.tf
+
+# IDEs
+.idea/
+.vscode/
+*.swp
