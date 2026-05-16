@@ -73,7 +73,7 @@ ls ~/.ssh/id_rsa.pub
 ### 1. Clona el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/terraform-wordpress.git
+git clone https://github.com/JesusCMM-LLMM/WordPress-en-AWS-con-Terraform.git
 cd terraform-wordpress
 ```
 
