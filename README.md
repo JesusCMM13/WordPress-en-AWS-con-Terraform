@@ -222,6 +222,8 @@ En lugar de configurar el DNS manualmente, el `userdata.sh` llamaría a la API d
 - El token y subdominio de DuckDNS se añadirían como variables sensibles en `terraform.tfvars`
 - Tras registrar el dominio, Certbot se ejecutaría automáticamente para emitir el certificado SSL
 - WordPress se configuraría directamente con `https://tusubdominio.duckdns.org` como URL base
+
+
 **PROBLEMA**: DuckDNS solo deja 5 dominios. Buscar alternativas
 
 
