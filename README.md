@@ -1,4 +1,4 @@
-# 🚀 WordPress en AWS con Terraform
+# WordPress en AWS con Terraform
 
 Infraestructura como código para desplegar WordPress en una instancia EC2 en AWS, incluyendo VPC propia, IP Elástica y configuración automática del servidor.
 
@@ -9,7 +9,7 @@ Infraestructura como código para desplegar WordPress en una instancia EC2 en AW
 
 ---
 
-## 📐 Arquitectura
+## Arquitectura
 
 ```
 Internet
@@ -37,7 +37,7 @@ Elastic IP (estática)
 └─────────────────────────────────────┘
 ```
 
-## ✅ Recursos creados en AWS
+## Recursos creados en AWS
 
 | Recurso | Detalle |
 |---|---|
@@ -52,13 +52,13 @@ Elastic IP (estática)
 
 ---
 
-## 📋 Requisitos previos
+## Requisitos previos
 
 - [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.5
 - [AWS CLI](https://aws.amazon.com/cli/) configurado con credenciales válidas (`aws configure`)
 - Par de claves SSH generado en tu máquina (`~/.ssh/id_rsa` y `~/.ssh/id_rsa.pub`)
 
-Verifica que todo está en orden:
+Verificar que todo está en orden:
 
 ```bash
 terraform version
@@ -68,7 +68,7 @@ ls ~/.ssh/id_rsa.pub
 
 ---
 
-## 🚀 Despliegue
+## Despliegue
 
 ### 1. Clona el repositorio
 
@@ -83,11 +83,11 @@ cd terraform-wordpress
 cp terraform.tfvars.example terraform.tfvars
 ```
 
-Edita `terraform.tfvars` con tus valores:
+Edita `terraform.tfvars` con tus valores, ejemplo:
 
 ```hcl
 db_password         = "TuContraseñaSegura!2024"
-ssh_allowed_cidr    = "1.2.3.4/32"   # Tu IP pública (https://whatismyip.com)
+ssh_allowed_cidr    = "1.2.3.4/32"         # Tu IP pública, solo tu accedes mediante SSH
 ssh_public_key_path = "~/.ssh/id_rsa.pub"
 ```
 
@@ -124,7 +124,7 @@ http://<ELASTIC_IP>/wp-admin/install.php
 
 ---
 
-## 🔒 SSL con Let's Encrypt (opcional)
+## SSL con Let's Encrypt (opcional)
 
 Necesitas un dominio apuntando a tu Elastic IP. Con [DuckDNS](https://www.duckdns.org) puedes obtener un subdominio gratuito.
 
@@ -142,7 +142,7 @@ Certbot configura Apache automáticamente y activa la redirección HTTP → HTTP
 
 ---
 
-## 💰 Coste estimado (eu-west-1)
+##  Coste estimado (eu-west-1)
 
 | Recurso | $/mes | $/día |
 |---|---|---|
@@ -166,7 +166,7 @@ aws ec2 start-instances --instance-ids <INSTANCE_ID> --region eu-west-1
 
 ---
 
-## 🗑️ Destruir la infraestructura
+## Destruir la infraestructura
 
 ```bash
 terraform destroy
@@ -184,12 +184,12 @@ terraform-wordpress/
 ├── userdata.sh                # Script de instalación automática de WordPress
 ├── terraform.tfvars.example   # Plantilla de configuración (copiar a terraform.tfvars)
 ├── .gitignore                 # Excluye terraform.tfvars y ficheros de estado
-└── README.md                  # Este fichero
+└── README.md                  
 ```
 
 ---
 
-## ⚙️ Variables disponibles
+## Variables disponibles
 
 | Variable | Descripción | Default |
 |---|---|---|
@@ -207,36 +207,26 @@ terraform-wordpress/
 
 ---
 
-## 🔮 Mejoras futuras
+## Mejoras futuras/Roadmap
 
-### 🤖 Automatización completa del despliegue
+### Automatización completa del despliegue
 Actualmente el asistente de instalación de WordPress requiere configuración manual desde el navegador. El objetivo es completar el despliegue 100% sin intervención humana usando **WP-CLI**:
 
 - Instalación y configuración de WordPress vía línea de comandos
-- Creación del usuario administrador, título del sitio y email desde variables de Terraform
-- El entorno estaría completamente operativo al terminar el `terraform apply`, sin necesidad de abrir el navegador
+- Creación del usuario administrador, título del sitio y email desde variables de Terraform, previamente proporcionada como argumentos.
+- El entorno estaría completamente operativo al terminar el `terraform apply`, sin necesidad de abrir el navegador.
 
-### 🌐 Registro automático de dominio con DuckDNS
+### Registro automático de dominio con DuckDNS
 En lugar de configurar el DNS manualmente, el `userdata.sh` llamaría a la API de DuckDNS para registrar automáticamente la Elastic IP bajo el subdominio deseado:
 
 - El token y subdominio de DuckDNS se añadirían como variables sensibles en `terraform.tfvars`
 - Tras registrar el dominio, Certbot se ejecutaría automáticamente para emitir el certificado SSL
 - WordPress se configuraría directamente con `https://tusubdominio.duckdns.org` como URL base
+**PROBLEMA**: DuckDNS solo deja 5 dominios. Buscar alternativas
 
-### 🗄️ Base de datos en RDS
-Migrar MariaDB de la propia EC2 a una instancia **Amazon RDS** para mayor fiabilidad, copias de seguridad automáticas y separación de responsabilidades.
-
-### 📦 ALB + Auto Scaling
-Añadir un **Application Load Balancer** y un grupo de Auto Scaling para soportar picos de tráfico y garantizar alta disponibilidad.
-
-### 🪣 Medios en S3
-Configurar WordPress para almacenar los uploads en un bucket **S3** en lugar del disco local, lo que facilita el escalado horizontal y reduce el coste del volumen EBS.
-
-### 🔁 Remote State en S3 + DynamoDB
-Configurar el **backend remoto de Terraform** para guardar el estado en S3 con bloqueo en DynamoDB, permitiendo trabajar en equipo sin conflictos de estado.
 
 ---
 
-## 📄 Licencia
+## Licencia
 
 MIT — libre para usar, modificar y distribuir.
