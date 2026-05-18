@@ -181,16 +181,12 @@ resource "aws_eip" "wordpress_eip" {
 }
 
 # El bucket pa los logs
-#  modificado con excepciones para alertas específicas
+# modificado con excepciones para alertas específicas
+# Soluciona AWS-0089: Si activas logging en un bucket de logs, creas un bucle infinito.
+# trivy:ignore:aws-0089 - Este bucket ya es un destino de logs, no requiere logging propio.
 resource "aws_s3_bucket" "vpc_logs" {
   bucket        = "mi-proyecto-wordpress-vpc-flow-logs-unicov1"
   force_destroy = true
-
-  # Soluciona AWS-0132: Ignoramos clave administrada por cliente (KMS CMK) para ahorrar $1 USD/mes.
-  # trivy:ignore:aws-0132 - Usamos el cifrado nativo de AWS para evitar costes innecesarios en logs dinámicos.
-
-  # Soluciona AWS-0089: Si activas logging en un bucket de logs, creas un bucle infinito.
-  # trivy:ignore:aws-0089 - Este bucket ya es un destino de logs, no requiere logging propio.
 }
 
 # 2. Bloqueo de acceso público total (Soluciona AWS-0086, AWS-0087, AWS-0091, AWS-0093 y AWS-0094)
@@ -211,8 +207,10 @@ resource "aws_s3_bucket_versioning" "vpc_logs_versioning" {
 }
 
 # 4. Forzar cifrado básico por defecto (Medida de seguridad extra recomendada)
+# trivy:ignore:aws-0132 - Usamos AES256 gestionado por AWS para mantener el coste en $0 y evitar pagar $1/mes por una clave KMS personalizada
 resource "aws_s3_bucket_server_side_encryption_configuration" "vpc_logs_encryption" {
   bucket = aws_s3_bucket.vpc_logs.id
+
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
