@@ -106,6 +106,7 @@ resource "aws_security_group" "wordpress_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
+    # trivy:ignore:aws-0107 - Necesario para que el público acceda a la web
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -114,6 +115,7 @@ resource "aws_security_group" "wordpress_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # trivy:ignore:aws-0104 - Necesario para descargar actualizaciones de Linux/WordPress
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -151,6 +153,12 @@ resource "aws_instance" "wordpress" {
     db_password = var.db_password
   })
 
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required" # Fuerza el uso de tokens (IMDSv2)
+    http_put_response_hop_limit = 1
+  }
+
   # Protección anti-borrado accidental
   disable_api_termination = false
 
@@ -169,4 +177,12 @@ resource "aws_eip" "wordpress_eip" {
   depends_on = [aws_internet_gateway.igw]
 
   tags = merge(var.common_tags, { Name = "${var.project_name}-eip" })
+}
+
+resource "aws_flow_log" "wordpress_vpc_flow_log" {
+  log_destination      = aws_s3_bucket.vpc_logs.arn
+  log_destination_type = "s3"
+  traffic_type         = "ALL"
+
+  vpc_id = aws_vpc.wordpress_vpc.id
 }

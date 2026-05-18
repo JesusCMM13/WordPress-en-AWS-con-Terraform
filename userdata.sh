@@ -166,5 +166,8 @@ MODULES
 systemctl restart php-fpm
 systemctl restart httpd
 
+# ─── Obtener Token de IMDSv2 y mostrar IP de acceso ──────────
+TOKEN=$$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+
 echo "✅ WordPress instalado correctamente."
-echo "Accede en: http://$$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)"
+echo "Accede en: http://$$(curl -s -H "X-aws-ec2-metadata-token: $$TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4)"
