@@ -188,7 +188,7 @@ resource "aws_s3_bucket" "vpc_logs" {
 
   # Soluciona AWS-0132: Ignoramos clave administrada por cliente (KMS CMK) para ahorrar $1 USD/mes.
   # trivy:ignore:aws-0132 - Usamos el cifrado nativo de AWS para evitar costes innecesarios en logs dinámicos.
-  
+
   # Soluciona AWS-0089: Si activas logging en un bucket de logs, creas un bucle infinito.
   # trivy:ignore:aws-0089 - Este bucket ya es un destino de logs, no requiere logging propio.
 }
