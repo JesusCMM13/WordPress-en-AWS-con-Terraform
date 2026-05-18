@@ -1,0 +1,46 @@
+name: "Terraform Static Validation"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  terraform-check:
+    name: "Validación y Seguridad"
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Descargar el código de tu repositorio
+      - name: Checkout Código
+        uses: actions/checkout@v4
+
+      # 2. Instalar la herramienta oficial de Terraform
+      - name: Configurar Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # 3. Validar el formato estético del código
+      # Fallará si hay archivos mal indentados
+      - name: Verificar Formato (Terraform Fmt)
+        run: terraform fmt -check
+
+      # 4. Inicializar en modo offline
+      # Descarga los plugins de AWS pero IGNORE por completo el backend/estado remoto
+      - name: Inicializar Terraform (Offline)
+        run: terraform init -backend=false
+
+      # 5. Validar consistencia interna
+      # Comprueba que las variables existan y los bloques de recursos de AWS estén bien construidos
+      - name: Validar Sintaxis (Terraform Validate)
+        run: terraform validate
+
+      # 6. Escaneo de Seguridad Estático (Trivy)
+      # Analiza tu código buscando vulnerabilidades (ej. puertos abiertos, falta de cifrado)
+      - name: Escaneo de Seguridad con Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          hide-progress: true
+          format: 'table'
+          exit-code: '1' # Hace que la CI falle si encuentra un riesgo de seguridad grave
