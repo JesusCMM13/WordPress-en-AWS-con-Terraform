@@ -179,6 +179,12 @@ resource "aws_eip" "wordpress_eip" {
   tags = merge(var.common_tags, { Name = "${var.project_name}-eip" })
 }
 
+# El bucket pa los logs
+resource "aws_s3_bucket" "vpc_logs" {
+  bucket        = "mi-proyecto-wordpress-vpc-flow-logs-unicov1"
+  force_destroy = true
+}
+
 resource "aws_flow_log" "wordpress_vpc_flow_log" {
   log_destination      = aws_s3_bucket.vpc_logs.arn
   log_destination_type = "s3"
