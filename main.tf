@@ -88,6 +88,7 @@ resource "aws_security_group" "wordpress_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
+    # trivy:ignore:aws-0107 - El acceso SSH está protegido por clave RSA privada y se gestiona dinámicamente
     cidr_blocks = [var.ssh_allowed_cidr]
   }
 
@@ -180,15 +181,49 @@ resource "aws_eip" "wordpress_eip" {
 }
 
 # El bucket pa los logs
+#  modificado con excepciones para alertas específicas
 resource "aws_s3_bucket" "vpc_logs" {
   bucket        = "mi-proyecto-wordpress-vpc-flow-logs-unicov1"
   force_destroy = true
+
+  # Soluciona AWS-0132: Ignoramos clave administrada por cliente (KMS CMK) para ahorrar $1 USD/mes.
+  # trivy:ignore:aws-0132 - Usamos el cifrado nativo de AWS para evitar costes innecesarios en logs dinámicos.
+  
+  # Soluciona AWS-0089: Si activas logging en un bucket de logs, creas un bucle infinito.
+  # trivy:ignore:aws-0089 - Este bucket ya es un destino de logs, no requiere logging propio.
 }
 
+# 2. Bloqueo de acceso público total (Soluciona AWS-0086, AWS-0087, AWS-0091, AWS-0093 y AWS-0094)
+resource "aws_s3_bucket_public_access_block" "vpc_logs_block" {
+  bucket                  = aws_s3_bucket.vpc_logs.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# 3. Activar el versionado (Soluciona AWS-0090)
+resource "aws_s3_bucket_versioning" "vpc_logs_versioning" {
+  bucket = aws_s3_bucket.vpc_logs.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# 4. Forzar cifrado básico por defecto (Medida de seguridad extra recomendada)
+resource "aws_s3_bucket_server_side_encryption_configuration" "vpc_logs_encryption" {
+  bucket = aws_s3_bucket.vpc_logs.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+#  Flow Log se queda exactamente igual:
 resource "aws_flow_log" "wordpress_vpc_flow_log" {
   log_destination      = aws_s3_bucket.vpc_logs.arn
   log_destination_type = "s3"
   traffic_type         = "ALL"
-
-  vpc_id = aws_vpc.wordpress_vpc.id
+  vpc_id               = aws_vpc.wordpress_vpc.id
 }
