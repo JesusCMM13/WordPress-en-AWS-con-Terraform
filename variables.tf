@@ -30,14 +30,14 @@ variable "public_subnet_cidr" {
 variable "ssh_allowed_cidr" {
   description = "IP/CIDR desde la que se permite SSH. Cambia a tu IP pública para mayor seguridad"
   type        = string
-  default     = "0.0.0.0/0"  # ⚠️ Restringe esto en producción
+  default     = "0.0.0.0/0" # ⚠️ Restringe esto en producción
 }
 
 # ─── EC2 ─────────────────────────────────────────────────────
 variable "instance_type" {
   description = "Tipo de instancia EC2"
   type        = string
-  default     = "t3.small"   # recomendado para WordPress con algo de tráfico
+  default     = "t3.small" # recomendado para WordPress con algo de tráfico
 }
 
 variable "root_volume_size" {

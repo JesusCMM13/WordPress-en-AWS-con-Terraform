@@ -54,7 +54,7 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.wordpress_vpc.id
   cidr_block              = var.public_subnet_cidr
   availability_zone       = "${var.aws_region}a"
-  map_public_ip_on_launch = false  # usaremos Elastic IP
+  map_public_ip_on_launch = false # usaremos Elastic IP
 
   tags = merge(var.common_tags, { Name = "${var.project_name}-public-subnet" })
 }
@@ -157,7 +157,7 @@ resource "aws_instance" "wordpress" {
   tags = merge(var.common_tags, { Name = "${var.project_name}-ec2" })
 
   lifecycle {
-    ignore_changes = [ami]  # no reemplaza la instancia si sale nueva AMI
+    ignore_changes = [ami] # no reemplaza la instancia si sale nueva AMI
   }
 }
 
